@@ -1,10 +1,10 @@
-This project is forked from the deprecated https://github.com/camilleanne/pulse.
+This project is forked from the abandoned https://github.com/camilleanne/pulse.
 
 To run: `python app.py`.  Then visit `localhost:5000` in an incognito window of Chrome.
 
 You might need to install some libraries with pip.  I have not been able to run `pip install -r requirements.txt` without an error, but I don't remember having any issues with missing libraries.
 
-I got this to work on python 3.7.0 in Chrome Incognito.  The original used some version of python 2, so I had to update some code to get this to work.  While it seems to be somewhat functional, its value for my heart rate is completely wrong.  It jumps between 40BPM and 120BPM.
+I got this to work on python 3.7.0 in Chrome Incognito.  The original used some version of python 2, so I had to update some code to get this to work.  While it seems to be somewhat functional, its value for my heart rate is completely wrong.  It jumps around between 40BPM and 120BPM.  The confidence graph typically has numerous spikes, and the place where my heart rate should be (70-90BPM) does not stand out.
 
 The following content is from the original.
 
