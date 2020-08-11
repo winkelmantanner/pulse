@@ -44,7 +44,7 @@ var camera = (function(){
         if (video.mozSrcObject !== undefined) { // for Firefox
           video.mozSrcObject = stream;
         } else {
-          video.src = window.URL.createObjectURL(stream); 
+          video.srcObject = stream;
         }
         hidden.style.display = "none";
         hidden.className = "";
@@ -325,8 +325,8 @@ var camera = (function(){
     }
   }
 
-  function startCapture(){
-    video.play();
+  async function startCapture(){
+    await video.play();
 
     // ** if the video is paused, reset everything so that the data collection process restarts ** 
     if (pause == true){

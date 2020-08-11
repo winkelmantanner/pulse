@@ -124,7 +124,7 @@ def jadeR(X):
 	
 	[n,T] = X.shape
 
-	m = n
+	m = int(n)
 
 	X -= X.mean(1)
 
@@ -175,7 +175,7 @@ def jadeR(X):
 	# Reshaping of the data, hoping to speed up things a little bit...
 	X = X.T #transpose data to (256, 3)
 	# Dim. of the space of real symm matrices
-	dimsymm = (m * (m + 1)) / 2 #6
+	dimsymm = (m * (m + 1)) // 2 #6
 	# number of cumulant matrices
 	nbcm = dimsymm #6
 	# Storage for cumulant matrices
