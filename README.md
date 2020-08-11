@@ -1,5 +1,12 @@
-### NOTE: This project is no longer maintained -- it was a code school project from several years ago. As of 7/2017 I am on a one year travel haitus and am slowly (while on trains planes and in automobiles) dragging this project into a frontend and node backend module that can be applied to any project your heart desires. I will ignore any tickets opened on *this* repo, but feel free to fork (keep the license in mind, please) and have a good time with this for now.
+This project is forked from the deprecated https://github.com/camilleanne/pulse.
 
+To run: `python app.py`.  Then visit `localhost:5000` in an incognito window of Chrome.
+
+You might need to install some libraries with pip.  I have not been able to run `pip install -r requirements.txt` without an error, but I don't remember having any issues with missing libraries.
+
+I got this to work on python 3.7.0 in Chrome Incognito.  The original used some version of python 2, so I had to update some code to get this to work.  While it seems to be somewhat functional, its value for my heart rate is completely wrong.  It jumps between 40BPM and 120BPM.
+
+The following content is from the original.
 
 Pulse
 ===========
