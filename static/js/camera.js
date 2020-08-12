@@ -27,8 +27,6 @@ var camera = (function(){
     video.setAttribute("width", width);
     video.setAttribute("height", height);
 
-    navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
-
     window.URL = window.URL || window.webkitURL || window.mozURL || window.msURL;
 
     // ** for showing/hiding arrow ** 
@@ -36,11 +34,11 @@ var camera = (function(){
     var buttonBar = document.getElementById("buttonBar");
     var allowWebcam = document.getElementById("allowWebcam");
 
-    if (navigator.getUserMedia){
-      navigator.getUserMedia({
+    if (navigator.mediaDevices.getUserMedia){
+      navigator.mediaDevices.getUserMedia({
         video: true,
         audio: false
-      }, function(stream){
+      }).then(function(stream){
         if (video.mozSrcObject !== undefined) { // for Firefox
           video.mozSrcObject = stream;
         } else {
@@ -51,10 +49,15 @@ var camera = (function(){
         allowWebcam.style.display = "none";
 
         buttonBar.className = "button";
-
-        initCanvas(); 
-      }, errorCallback);
-      };
+      }).then(async function() {
+        initCanvas();
+        await startCapture();
+      }).catch(
+        errorCallback
+      );
+    } else {
+      console.log("navigator.mediaDevices.getUserMedia casted to false");
+    }
   };
 
   function initCanvas(){
@@ -86,10 +89,6 @@ var camera = (function(){
         timeBase: new Date().getTime() / 1000
       })
     });
-
-
-
-    startCapture();
   };
 
   function headtrack (){      
