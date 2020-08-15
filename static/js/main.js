@@ -10,3 +10,5 @@ document.getElementById("end_camera").addEventListener("click", function() {
     paused = false;
   }
 });
+
+

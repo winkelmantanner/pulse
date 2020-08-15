@@ -22,6 +22,18 @@ var camera = (function(){
   var blur = false;
   var graphing = false;
 
+  var is_using_accelerometer = false;
+
+  var ax = 0;
+  var ay = 0;
+  var az = 0;
+
+  window.addEventListener("devicemotion", event => {
+    ax = event.accelerationIncludingGravity.x;
+    ay = event.accelerationIncludingGravity.y;
+    az = event.accelerationIncludingGravity.z;
+  });
+
   function initVideoStream(){
     video = document.createElement("video");
     video.setAttribute("width", width);
@@ -34,30 +46,49 @@ var camera = (function(){
     var buttonBar = document.getElementById("buttonBar");
     var allowWebcam = document.getElementById("allowWebcam");
 
-    if (navigator.mediaDevices.getUserMedia){
-      navigator.mediaDevices.getUserMedia({
-        video: true,
-        audio: false
-      }).then(function(stream){
-        if (video.mozSrcObject !== undefined) { // for Firefox
-          video.mozSrcObject = stream;
-        } else {
-          video.srcObject = stream;
-        }
-        hidden.style.display = "none";
-        hidden.className = "";
-        allowWebcam.style.display = "none";
+    new Promise((resolve, reject) => {
+      document.getElementById("useAccelerometer").addEventListener("click", () => {
+        is_using_accelerometer = true;
+        document.getElementById("movingParts").style.display = "none";
+        document.getElementById("heartbeat").style.top = "0px";
+        document.getElementById("heartbeat").style.height = "500px";
+        resolve(null);
+      });
+      if (navigator.mediaDevices
+        && navigator.mediaDevices.getUserMedia
+      ){
+        navigator.mediaDevices.getUserMedia({
+          video: true,
+          audio: false
+        }).then((stream) => {
+          resolve(stream);
+        });
+      } else {
+        console.log("navigator.mediaDevices && navigator.mediaDevices.getUserMedia was false");
+      }
+    }).then(function(stream){
+      console.log("T1");
+      if (video.mozSrcObject !== undefined) { // for Firefox
+        video.mozSrcObject = stream;
+      } else {
+        video.srcObject = stream;
+      }
+      console.log("T2");
+      hidden.style.display = "none";
+      hidden.className = "";
+      allowWebcam.style.display = "none";
 
-        buttonBar.className = "button";
-      }).then(async function() {
-        initCanvas();
-        await startCapture();
-      }).catch(
-        errorCallback
-      );
-    } else {
-      console.log("navigator.mediaDevices.getUserMedia casted to false");
-    }
+      buttonBar.className = "button";
+      console.log("T3");
+    }).then(async function() {
+      console.log("T4");
+      initCanvas();
+      console.log("T5");
+      await startCapture();
+      console.log("T6");
+    }).catch(
+      errorCallback
+    );
   };
 
   function initCanvas(){
@@ -71,6 +102,8 @@ var camera = (function(){
     canvasOverlay.setAttribute("height", height);
     overlayContext = canvasOverlay.getContext("2d");
     overlayContext.clearRect(0,0,width,height);
+
+    document.getElementById("useAccelerometer").style.display = "none";
 
     var button = document.getElementById("end_camera");
     button.style.display = "block";
@@ -104,69 +137,86 @@ var camera = (function(){
     // ** clear canvas ** 
     overlayContext.clearRect(0,0,width,height);
 
-    var sx, sy, sw, sh, forehead, inpos, outpos;
-    var greenSum = 0;
-    var redSum = 0;
-    var blueSum = 0;
-    
-    // ** approximating forehead based on facetracking ** 
-    sx = event.x + (-(event.width/5)) + 20 >> 0;
-    sy = event.y + (-(event.height/3)) + 10 >> 0;
-    sw = (event.width/5) >> 0;
-    sh = (event.height/10) >> 0;
+    if(event !== undefined) {
+      var sx, sy, sw, sh, forehead, inpos, outpos;
+      var greenSum = 0;
+      var redSum = 0;
+      var blueSum = 0;
+      
+      // ** approximating forehead based on facetracking ** 
+      sx = event.x + (-(event.width/5)) + 20 >> 0;
+      sy = event.y + (-(event.height/3)) + 10 >> 0;
+      sw = (event.width/5) >> 0;
+      sh = (event.height/10) >> 0;
+    }
 
     //  ** CS == camshift (in headtrackr.js) ** 
     //  ** once we have stable tracking, draw rectangle ** 
-    if (event.detection == "CS") /**/ {
-      overlayContext.rotate(event.angle-(Math.PI/2));
-      overlayContext.strokeStyle = "#00CC00";
-      overlayContext.strokeRect(event.x + (-(event.width/2)) >> 0, event.y + (-(event.height/2)) >> 0, event.width, event.height);
-      
-      //  ** for debugging: blue forehead box ** 
-      overlayContext.strokeStyle = "#33CCFF";       
-      overlayContext.strokeRect(sx, sy, sw, sh);
-
-      forehead = context.getImageData(sx, sy, sw, sh);
-      
-      // ** turn green ** 
-      for (i = 0; i < forehead.data.length; i+=4){
-        // ** for reference: ** 
-        // var red = forehead.data[i];
-        // var green = forehead.data[i+1];
-        // var blue = forehead.data[i+2];
-        // var alpha = forehead.data[i+3];
-
-        //  ** for debugging: puts a green video image on screen ** 
-        // forehead.data[i] = 0;
-        // forehead.data[i + 1] = forehead.data[i]
-        // forehead.data[i + 2] = 0;
-
-        // ** get sum of green area for each frame **
-        // ** FOR RGB CHANNELS & ICA **
-        redSum = forehead.data[i] + redSum;
-        greenSum = forehead.data[i+1] + greenSum;
-        blueSum = forehead.data[i+2] + blueSum;
+    if (is_using_accelerometer
+      || event.detection == "CS"
+    ) /**/ {
+      if(event !== undefined) {
+        overlayContext.rotate(event.angle-(Math.PI/2));
+        overlayContext.strokeStyle = "#00CC00";
+        overlayContext.strokeRect(event.x + (-(event.width/2)) >> 0, event.y + (-(event.height/2)) >> 0, event.width, event.height);
         
-        // ** blurs video after head tracking **
-        if (blur == false){
-          var border = document.getElementById("border");
-          canvas.className = "video blur";
-          border.className = "border";
-          blur = true;
-          minimizeVideo();
-        }
+        //  ** for debugging: blue forehead box ** 
+        overlayContext.strokeStyle = "#33CCFF";       
+        overlayContext.strokeRect(sx, sy, sw, sh);
 
-        // // ** TOGGLE FOR GREEN CHANNEL ONLY **
-        // greenSum = forehead.data[i+1] + greenSum;
-      };
+        forehead = context.getImageData(sx, sy, sw, sh);
+      
+        // ** turn green ** 
+        for (i = 0; i < forehead.data.length; i+=4){
+          // ** for reference: ** 
+          // var red = forehead.data[i];
+          // var green = forehead.data[i+1];
+          // var blue = forehead.data[i+2];
+          // var alpha = forehead.data[i+3];
+
+          //  ** for debugging: puts a green video image on screen ** 
+          // forehead.data[i] = 0;
+          // forehead.data[i + 1] = forehead.data[i]
+          // forehead.data[i + 2] = 0;
+
+          // ** get sum of green area for each frame **
+          // ** FOR RGB CHANNELS & ICA **
+          redSum = forehead.data[i] + redSum;
+          greenSum = forehead.data[i+1] + greenSum;
+          blueSum = forehead.data[i+2] + blueSum;
+          
+          // ** blurs video after head tracking **
+          if (blur == false){
+            var border = document.getElementById("border");
+            canvas.className = "video blur";
+            border.className = "border";
+            blur = true;
+            minimizeVideo();
+          }
+
+          // // ** TOGGLE FOR GREEN CHANNEL ONLY **
+          // greenSum = forehead.data[i+1] + greenSum;
+        };
+      } // end if(event !== undefined)
 
       // ** get average of green area for each frame **
 
-      // ** FOR RGB CHANNELS & ICA **
-      var redAverage = redSum/(forehead.data.length/4);
-      var greenAverage = greenSum/(forehead.data.length/4);
-      var blueAverage = blueSum/(forehead.data.length/4);
+      var redAverage;
+      var greenAverage;
+      var blueAverage;
 
+      if(
+        event !== undefined
+        && !is_using_accelerometer
+      ) {
+        redAverage = redSum/(forehead.data.length/4);
+        greenAverage = greenSum/(forehead.data.length/4);
+        blueAverage = blueSum/(forehead.data.length/4);
+      } else {
+        redAverage   = ax;
+        greenAverage = ay;
+        blueAverage  = az;
+      }
       // //  ** TOGGLE FOR GREEN CHANNEL ONLY **
       // var greenAverage = greenSum/(forehead.data.length/4);
 
@@ -197,6 +247,22 @@ var camera = (function(){
         blue.push(blueAverage);
         blue.shift();
       }
+      // for(let k = 0; k < green.length; k++) {
+      //   let r = red[k];
+      //   let g = green[k];
+      //   let b = blue[k];
+      //   if(isNaN(r) || !r || isNaN(g) || !g || isNaN(b) || !b) {
+      //     if(k > 0) {
+      //       red[k] = red[k - 1];
+      //       green[k] = green[k - 1];
+      //       blue[k] = blue[k - 1];
+      //     } else {
+      //       red[k] = 0;
+      //       green[k] = 0;
+      //       blue[k] = 0;
+      //     }
+      //   }
+      // }
       
       graphData = {one: normalize(green)[green.length-1]}
       rawDataGraph.series.addData(graphData);
@@ -211,7 +277,9 @@ var camera = (function(){
       // ** for debugging: puts green video image on screen **
       // overlayContext.putImageData(forehead, sx, sy);
 
-      overlayContext.rotate((Math.PI/2)-event.angle);
+      if(event !== undefined) {
+        overlayContext.rotate((Math.PI/2)-event.angle);
+      }
     }
   };
 
@@ -324,8 +392,16 @@ var camera = (function(){
     }
   }
 
+  let accelerometer_interval = null;
   async function startCapture(){
-    await video.play();
+    console.log("begin startCapture()");
+    if(is_using_accelerometer) {
+      if(accelerometer_interval === null) {
+        accelerometer_interval = setInterval(greenRect, Math.round(1000 / fps));
+      }
+    } else {
+      await video.play();
+    }
 
     // ** if the video is paused, reset everything so that the data collection process restarts ** 
     if (pause == true){
@@ -351,6 +427,9 @@ var camera = (function(){
       // }
       // ** FOR RGB CHANNELS & ICA **
       if (sendingData){
+        if(red.some(q => isNaN(q) || !q) || green.some(q => isNaN(q) || !q) || blue.some(q => isNaN(q) || !q)) {
+          console.log("sendingData BAD DATA DETECTED", red, green, blue);
+        }
         sendData(JSON.stringify({"array": [red, green, blue], "bufferWindow": green.length}));
       }
 
@@ -381,7 +460,9 @@ var camera = (function(){
 
 
     // ** begin headtracking! ** 
-    headtrack();
+    if(!is_using_accelerometer){
+      headtrack();
+    }
   };
 
   function pauseCapture(){
