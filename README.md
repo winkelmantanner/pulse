@@ -6,19 +6,11 @@ To run: `python app.py`.  Then visit `localhost:5000` in an incognito window of 
 
 You might need to install some libraries with pip.  I have not been able to run `pip install -r requirements.txt` without an error, but I don't remember having any issues with missing libraries.
 
-I got this to work on python 3.7.0 in Chrome Incognito.  The original used some version of python 2, so I had to update some code to get this to work.  While it seems to be somewhat functional, its value for my heart rate is completely wrong.  It jumps around between 40BPM and 120BPM.  The confidence graph typically has numerous spikes, and the place where my heart rate should be (70-90BPM) does not stand out.
-
 Currently, the master branch of this repo automatically deploys to [pulsecam.herokuapp.com](https://pulsecam.herokuapp.com).
 
-### Hope through Development
-I used to be Computer Science student, but I came down with severe neurological problems characterized by head pain and mental problems.  I am in horrible pain every day and I am unable to do full-time work or school.  I am working on this biofeedback application to try to bring myself hope that this pain will end.
-Pulse does not successfully measure my heart rate.  BUT, I use a mobile app, StressCam (http://stress-cam.com/), and it accurately reads my heart rate.  It uses the camera on the non-screen side of my phone, which is right next to the flash light.  I put my finger over the camera and it illuminates my finger with the flash light.  If I hold it still, it will show a graph that clearly matches my heart rate, and I can clearly see it increase when I inhale and decrease when I exhale.  This is the only app I have found that works this well and does not use specialized hardware.  Since it can be done without specialized hardware, I am not sure why almost every biofeedback app requires specialized hardware.
+I got this to work on python 3.7.0 in Chrome Incognito.  The original used some version of python 2, so I had to update some code to get this to work.  While it seems to be somewhat functional, its value for my heart rate is completely wrong.  It jumps around between 40BPM and 120BPM.  The confidence graph typically has numerous spikes, and the place where my heart rate should be (70-90BPM) does not stand out.  
 
-Here are my goals with Pulse:
-- Accurately read the user's heart rate using the non-screen side camera on mobile and illuminate the finger with the flash light.  So far I have not been able to access any camera on mobile.
-- Play a YouTube video of the user's choice and fade out the audio when the user's breathing is poor.  Or maybe pause the video, or fade it to black with the audio, or play it in slow motion.
-
-But with how little progress I have made toward these goals, the hope I get from working toward them is diminishing.
+I have used the [HeartPeace](https://heartpeace.app/) mobile app and it accurately measures my heart rate and can provide biofeedback.  I think this biofeedback could be taken a lot farther.  The app could play a YouTube video of the user's choice and fade out the audio when the user's breathing is poor.  Or maybe pause the video, or fade it to black with the audio, or play it in slow motion.  These were some of my goals with pulse, but pulse does not have enough accuracy for biofeedback to be possible.
 
 
 ### The following content is from the original.
